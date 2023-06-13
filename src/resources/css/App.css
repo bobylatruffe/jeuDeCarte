@@ -1,0 +1,13 @@
+#fenetrePrincipale {
+    -fx-background-image: url("../images/backgroundGame.png");
+}
+
+#scoreHBox {
+    -fx-background-color: #e39d05;
+    /*-fx-background-color: black;*/
+    -fx-opacity: 0.90;
+}
+
+.progress-bar .bar {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc143c, #32cd32);
+}

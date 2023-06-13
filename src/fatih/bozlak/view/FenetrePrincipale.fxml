@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.image.*?>
+<?import javafx.geometry.*?>
+<?import javafx.scene.text.*?>
+<?import javafx.scene.shape.*?>
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+
+<Pane fx:id="fenetrePrincipale" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity"
+      prefHeight="800.0" prefWidth="1000.0" stylesheets="@../../../resources/css/App.css"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1"
+      fx:controller="fatih.bozlak.controller.FenetrePrincipaleController">
+    <children>
+        <HBox fx:id="scoreHBox" alignment="CENTER" prefHeight="80.0" prefWidth="1000.0" visible="false">
+            <children>
+                <Label fx:id="lblPseudo" prefHeight="178.0" prefWidth="231.0" text="EtTonPseudo ?!" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="24.0"/>
+                    </font>
+                    <padding>
+                        <Insets left="20.0"/>
+                    </padding>
+                </Label>
+                <ProgressBar fx:id="progressBarNonIa" prefHeight="42.0" prefWidth="270.0" progress="0.0"
+                             style="-fx-border-style: none;"/>
+                <ImageView fitHeight="90.0" fitWidth="118.0" pickOnBounds="true" preserveRatio="true">
+                    <image>
+                        <Image url="@../../../resources/images/vs.png"/>
+                    </image>
+                </ImageView>
+                <ProgressBar fx:id="progressBarIa" prefHeight="42.0" prefWidth="270.0" progress="0.0"
+                             style="-fx-border-style: none;"/>
+                <Label alignment="CENTER_RIGHT" prefHeight="178.0" prefWidth="231.0" text="Tribulus" textFill="WHITE">
+                    <font>
+                        <Font name="System Bold" size="24.0"/>
+                    </font>
+                    <padding>
+                        <Insets right="20.0"/>
+                    </padding>
+                </Label>
+            </children>
+        </HBox>
+        <TextField fx:id="tfPseudo" alignment="CENTER" layoutX="338.0" layoutY="315.0" prefHeight="77.0"
+                   prefWidth="324.0" promptText="Ton pseudo...">
+            <font>
+                <Font name="System Bold" size="36.0"/>
+            </font>
+        </TextField>
+        <Button fx:id="startGame" layoutX="338.0" layoutY="409.0" mnemonicParsing="false" onAction="#demarrerUnePartie"
+                prefHeight="40.0" prefWidth="324.0" text="Jouer">
+            <font>
+                <Font name="System Bold" size="36.0"/>
+            </font>
+        </Button>
+    </children>
+</Pane>

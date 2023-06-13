@@ -1,8 +1,10 @@
 package fatih.bozlak.controller;
 
 import fatih.bozlak.modele.Carte;
+import fatih.bozlak.modele.ErreurJoueur;
 import fatih.bozlak.modele.Joueur;
 import fatih.bozlak.modele.MaitreDuJeu;
+import javafx.animation.RotateTransition;
 import javafx.animation.SequentialTransition;
 import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
@@ -13,6 +15,7 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.scene.transform.Rotate;
 import javafx.util.Duration;
 
 import java.net.URL;
@@ -24,7 +27,10 @@ public class FenetrePrincipaleController implements Initializable {
     private MaitreDuJeu maitre;
     
     private final double width = 1000;
+    
     private final double height = 700;
+    
+    private double stepProgressBar;
     
     @FXML
     private Pane fenetrePrincipale;
@@ -53,13 +59,25 @@ public class FenetrePrincipaleController implements Initializable {
         fenetrePrincipale.setPrefWidth(width);
     }
     
+    public MaitreDuJeu getMaitre() {
+        return maitre;
+    }
+    
+    public void incStepProgressBar(ProgressBar pb) {
+        pb.setProgress(pb.getProgress() + stepProgressBar);
+    }
+    
+    public void decStepProgressBar(ProgressBar pb) {
+        pb.setProgress(pb.getProgress() - stepProgressBar);
+    }
+    
     /**
      * Commence une nouvelle partie. Le Maître du Jeu est initialisé, un joueur est ajouté, et le paquet de cartes est
      * mélangé. La fenêtre principale est mise à jour pour afficher les informations de la partie.
      */
     public void demarrerUnePartie() {
         // Crée un nouveau Maître du Jeu avec un paquet de 13 cartes par couleur.
-        maitre = new MaitreDuJeu(13);
+        maitre = new MaitreDuJeu(2);
         
         // Ajoute un joueur avec le pseudo entré dans le champ de texte.
         maitre.addJoueur(new Joueur(tfPseudo.getText()));
@@ -77,6 +95,8 @@ public class FenetrePrincipaleController implements Initializable {
         for (Carte carte : maitre.getPaquet().getCartes()) {
             carte.setLayoutX(width / 2 - carte.getFitWidth() / 2);
             carte.setLayoutY(height / 2 - carte.getFitHeight() / 2);
+
+//            carte.setFaceDecouverte(true);
         }
         
         // Ajoute toutes les cartes à la fenêtre principale
@@ -112,8 +132,8 @@ public class FenetrePrincipaleController implements Initializable {
         progressBarIa.setRotate(180);
         
         // Mélange l'ordre des joueurs pour déterminer l'ordre de distribution
-        Joueur ia = maitre.getJoueurs().get(0);
-        Joueur nonIa = maitre.getJoueurs().get(1);
+        Joueur joueurIa = maitre.getJoueurs().get(0);
+        Joueur joueurNonIa = maitre.getJoueurs().get(1);
         Collections.shuffle(maitre.getJoueurs());
         
         // Obtient la liste des cartes à distribuer
@@ -125,6 +145,7 @@ public class FenetrePrincipaleController implements Initializable {
         
         // Calcule le pas de progression pour chaque carte distribuée
         double stepProgress = 1.0 / cartesADistribuer.size();
+        stepProgressBar = stepProgress;
         double progress = stepProgress;
         
         // Continue à distribuer les cartes jusqu'à ce qu'il n'y en ait plus
@@ -132,17 +153,22 @@ public class FenetrePrincipaleController implements Initializable {
             for (Joueur joueur : maitre.getJoueurs()) {
                 // Retire la première carte de la liste
                 Carte carteADistribuer = cartesADistribuer.remove(0);
+                try {
+                    maitre.donnerUneCarteAUnJoueur(joueur, carteADistribuer);
+                } catch (ErreurJoueur e) {
+                    System.out.println(e.getMessage());
+                }
                 
                 // Crée une nouvelle transition de translation pour l'animation de distribution de la carte
                 TranslateTransition tt = new TranslateTransition(Duration.millis(100), carteADistribuer);
                 
                 // Configure l'animation et la barre de progression en fonction du joueur
                 if (joueur.getPseudo().equals("Brutuse")) {
-                    tt.setByY(-315 + offsetYForPerseptive);
+                    tt.setToY(-315 + offsetYForPerseptive);
                     double newProgress = progress;
                     tt.setOnFinished(e -> progressBarNonIa.setProgress(newProgress));
                 } else {
-                    tt.setByY(350 - offsetYForPerseptive);
+                    tt.setToY(350 - offsetYForPerseptive);
                     double newProgress = progress;
                     tt.setOnFinished(e -> progressBarIa.setProgress(newProgress));
                 }
@@ -159,6 +185,7 @@ public class FenetrePrincipaleController implements Initializable {
         st.play();
         st.setOnFinished(e -> {
             System.out.println("Maitre du jeu : Distribution des cartes terminées, bonne chance !");
+            new JoueurController(this, joueurIa, joueurNonIa);
         });
         
         // Cache le bouton "Start Game"
@@ -184,4 +211,35 @@ public class FenetrePrincipaleController implements Initializable {
         return cartesReversed;
     }
     
+    public void animationDistribuerAuVainqueur() {
+    
+    }
+    public void animationCarteJouee(boolean isIa, Carte carte, boolean isFaceDecouverte) {
+        if (isFaceDecouverte) {
+            RotateTransition rt = new RotateTransition(Duration.millis(250), carte);
+            rt.setAxis(Rotate.Y_AXIS);
+            rt.setByAngle(90);
+            rt.play();
+            rt.setOnFinished(e -> {
+                carte.setFaceDecouverte(true);
+                RotateTransition rt2 = new RotateTransition(Duration.millis(250), carte);
+                rt2.setAxis(Rotate.Y_AXIS);
+                rt2.setByAngle(-90);
+                rt2.play();
+            });
+        }
+        TranslateTransition tt = new TranslateTransition(Duration.millis(500), carte);
+        tt.setToY(0);
+        
+        double toX = carte.getFitWidth() / 2 + 10;
+        if (isIa) {
+            tt.setToX(toX);
+            decStepProgressBar(progressBarIa);
+        } else {
+            tt.setToX(-toX);
+            decStepProgressBar(progressBarNonIa);
+        }
+        
+        tt.play();
+    }
 }

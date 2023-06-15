@@ -24,7 +24,7 @@ public class MaitreDuJeu {
      */
     private final ArrayList<Joueur> perdants = new ArrayList<>();
     
-    public final ArrayList<Carte> panier = new ArrayList<>();
+    private final ArrayList<Carte> panier = new ArrayList<>();
     
     /**
      * Va contenir à l'indice 0 la carte jouée par "l'IA" et à l'indice 1 le joueur "humain".
@@ -104,8 +104,7 @@ public class MaitreDuJeu {
                     break;
             }
             
-            if(gagnant != null)
-                System.out.printf("Maitre du jeu : Le joueur %s à gagné !\n", gagnant.getPseudo());
+            if (gagnant != null) System.out.printf("Maitre du jeu : Le joueur %s à gagné !\n", gagnant.getPseudo());
         }
         
         aComparer[0] = null;

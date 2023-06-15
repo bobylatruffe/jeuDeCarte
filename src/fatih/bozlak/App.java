@@ -4,6 +4,7 @@ import javafx.application.Application;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.Alert;
 import javafx.stage.Stage;
 
 public class App extends Application {
@@ -12,6 +13,8 @@ public class App extends Application {
     }
     @Override
     public void start(Stage stage) throws Exception {
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.show();
         Parent root = FXMLLoader.load(getClass().getResource("/fatih/bozlak/view/FenetrePrincipale.fxml"));
         
         stage.setResizable(false);

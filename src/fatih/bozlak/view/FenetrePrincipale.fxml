@@ -45,7 +45,7 @@
             </children>
         </HBox>
         <TextField fx:id="tfPseudo" alignment="CENTER" layoutX="338.0" layoutY="315.0" prefHeight="77.0"
-                   prefWidth="324.0" promptText="Ton pseudo...">
+                   prefWidth="324.0" text="Fatih" promptText="Ton pseudo...">
             <font>
                 <Font name="System Bold" size="36.0"/>
             </font>

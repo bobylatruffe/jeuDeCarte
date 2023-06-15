@@ -1,6 +1,7 @@
 package fatih.bozlak.modele;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class MaitreDuJeu {
     public static String nomIa = "Tribulus";
@@ -34,12 +35,17 @@ public class MaitreDuJeu {
         return panier;
     }
     
+    public Carte[] getAComparer() {
+        return aComparer;
+    }
+    
     /**
      * Cette méthode distribue toutes les cartes du panier au joueur spécifié.
      *
      * @param joueur - le joueur à qui seront distribuées les cartes du panier
      */
     public void distribuerPanierAuGagnant(Joueur joueur) {
+//        Collections.shuffle(panier);
         // Tant que le panier contient des cartes
         while (!panier.isEmpty()) {
             try {
@@ -88,6 +94,7 @@ public class MaitreDuJeu {
             switch (aComparer[0].compareTo(aComparer[1])) {
                 case 0: // Si la métrique est égale pour les deux joueurs, c'est qu'il faut une bataille
                     gagnant = null;
+                    System.out.println("Maitre du jeu : Pour vous départager, une bataille s'impose !");
                     break;
                 case 1: // Si la métrique du premier joueur est plus grande, le premier joueur est le gagnant
                     gagnant = joueurs.get(0);
@@ -96,6 +103,9 @@ public class MaitreDuJeu {
                     gagnant = joueurs.get(1);
                     break;
             }
+            
+            if(gagnant != null)
+                System.out.printf("Maitre du jeu : Le joueur %s à gagné !\n", gagnant.getPseudo());
         }
         
         aComparer[0] = null;
@@ -113,10 +123,12 @@ public class MaitreDuJeu {
      * @param joueur           - le joueur qui doit jouer une carte
      * @param isFaceDecouverte - un booléen qui indique si la carte est joué face découverte ou non
      */
-    public void demanderAUnJoueurDeJouer(Joueur joueur, boolean isFaceDecouverte) {
+    public Carte demanderAUnJoueurDeJouer(Joueur joueur, boolean isFaceDecouverte) {
+        Carte carteJouee = null;
         try {
             // Le joueur joue une carte
-            Carte carteJouee = joueur.jouerUneCarte();
+            carteJouee = joueur.jouerUneCarte();
+            System.out.printf("Maitre du jeu : %s a jouée une carte.\n", joueur.getPseudo());
             
             // La carte jouée est ajoutée au panier
             panier.add(carteJouee);
@@ -131,9 +143,10 @@ public class MaitreDuJeu {
         } catch (ErreurJoueur e) {
             // Si une erreur se produit (par exemple, si le joueur n'a plus de cartes à jouer), un message d'erreur est affiché et le joueur est ajouté à la liste des perdants
             System.out.println(e.getMessage());
-            System.out.printf("Maitre du jeu : Le joueur %s n'a plus de carte, il ne peut plus jouer... :-(\n", joueur.getPseudo());
             perdants.add(joueur);
         }
+        
+        return carteJouee;
     }
     
     /**
@@ -205,5 +218,10 @@ public class MaitreDuJeu {
         
         // Affichage d'un message indiquant la création de l'IA
         System.out.printf("Maitre du jeu : Création du joueur %s.\n", joueurs.get(0).getPseudo());
+    }
+    
+    @Override
+    public String toString() {
+        return "MaitreDuJeu{" + "paquet=" + paquet + ", joueurs=" + joueurs + ", perdants=" + perdants + ", panier=" + panier + ", aComparer=" + Arrays.toString(aComparer) + '}';
     }
 }

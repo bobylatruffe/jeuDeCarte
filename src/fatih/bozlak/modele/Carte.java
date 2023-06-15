@@ -49,7 +49,7 @@ public class Carte extends ImageView {
         
         this.setImage(imgFaceCachee);
         this.setFitWidth(150);
-        this.setFitHeight(250);
+        this.setFitHeight(230);
 //        this.setPreserveRatio(true);
     }
     

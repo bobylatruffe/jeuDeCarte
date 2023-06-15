@@ -20,8 +20,9 @@ import java.util.ResourceBundle;
 public class FenetrePrincipaleController implements Initializable {
     public static final double width = 1000;
     public static final double height = 700;
+    public static double stepProgressBar;
+    
     private MaitreDuJeu maitre;
-    private double stepProgressBar;
     
     @FXML
     private Pane fenetrePrincipale;

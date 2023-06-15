@@ -3,8 +3,6 @@ package fatih.bozlak.controller;
 import fatih.bozlak.modele.Carte;
 import fatih.bozlak.modele.Joueur;
 import fatih.bozlak.modele.MaitreDuJeu;
-import javafx.animation.SequentialTransition;
-import javafx.animation.TranslateTransition;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
@@ -13,7 +11,6 @@ import javafx.scene.control.ProgressBar;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
-import javafx.util.Duration;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -21,10 +18,10 @@ import java.util.Collections;
 import java.util.ResourceBundle;
 
 public class FenetrePrincipaleController implements Initializable {
+    public static final double width = 1000;
+    public static final double height = 700;
     private MaitreDuJeu maitre;
-    
-    private final double width = 1000;
-    private final double height = 700;
+    private double stepProgressBar;
     
     @FXML
     private Pane fenetrePrincipale;
@@ -47,10 +44,55 @@ public class FenetrePrincipaleController implements Initializable {
     @FXML
     private Label lblPseudo;
     
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        fenetrePrincipale.setPrefHeight(height);
-        fenetrePrincipale.setPrefWidth(width);
+    /**
+     * Méthode pour distribuer les cartes aux joueurs. Cette méthode va progressivement distribuer les cartes de la pile
+     * à chaque joueur, en ajustant les progress bars respectives des joueurs, jusqu'à ce que la pile soit vide.
+     */
+    // TODO: Rajouter animation pour distribution des cartes
+    public void distribuerLesCartesAuxJoueurs() {
+        // Inversion de l'orientation de la barre de progression de l'IA
+        progressBarIa.setScaleX(-1);
+        
+        // Définir le pas de progression de la barre de progression.
+        // Il est défini en fonction du nombre total de cartes dans le paquet du maitre du jeu
+        stepProgressBar = 1.0 / maitre.getPaquet().getCartes().size();
+        
+        // Variable utilisée pour modifier la perspective lors de la distribution des cartes
+        double forPerspective = 0.0;
+        
+        System.out.println("Maitre du jeu : Je distribue les cartes...");
+        
+        // Boucle tant qu'il y a des cartes dans le paquet du maitre du jeu
+        while (!maitre.getPaquet().getCartes().isEmpty()) {
+            
+            // Parcourir chaque joueur
+            for (Joueur joueur : maitre.getJoueurs()) {
+                // Retirer la première carte du paquet
+                Carte carte = maitre.getPaquet().getCartes().remove(0);
+                
+                // Donner cette carte au joueur courant
+                maitre.donnerUneCarteAUnJoueur(joueur, carte);
+                
+                // Si le joueur courant est l'IA, ajuster la position et la progression de la barre de l'IA
+                if (joueur.getPseudo().equals(MaitreDuJeu.nomIa)) {
+                    carte.setLayoutY(0 - carte.getFitHeight() / 2 + forPerspective);
+                    progressBarIa.setProgress(progressBarIa.getProgress() + stepProgressBar);
+                }
+                // Si le joueur courant n'est pas l'IA, ajuster la position et la progression de la barre du joueur non-IA
+                else {
+                    carte.setLayoutY(height - carte.getFitHeight() / 2 - forPerspective);
+                    progressBarNonIa.setProgress(progressBarNonIa.getProgress() + stepProgressBar);
+                }
+            }
+            
+            // Augmentation de la perspective
+            forPerspective += 0.5;
+        }
+        
+        System.out.println("Maitre du jeu : Distribution des cartes terminées.");
+        
+        // Donner la main à un autre contrôlleur qui va contrôler le jeu.
+        new JeuControlleur(maitre, progressBarIa, progressBarNonIa);
     }
     
     /**
@@ -68,6 +110,7 @@ public class FenetrePrincipaleController implements Initializable {
         // Rend visible la HBox de score et cache le champ de texte pour le pseudo.
         scoreHBox.setVisible(true);
         tfPseudo.setVisible(false);
+        startGame.setVisible(false);
         
         // Mélange le paquet de cartes
         maitre.getPaquet().melanger();
@@ -82,87 +125,10 @@ public class FenetrePrincipaleController implements Initializable {
         // Ajoute toutes les cartes à la fenêtre principale
         fenetrePrincipale.getChildren().addAll(faireCorrespondreLordreDesCartesDansSddAvecIHM(maitre.getPaquet().getCartes()));
         
-        // Place le bouton "startGame" au centre de la fenêtre et le met au premier plan
-        startGame.setLayoutX(width / 2 - startGame.getWidth() / 2);
-        startGame.setLayoutY(height / 2 - startGame.getHeight() / 2);
-        startGame.toFront();
-        startGame.setText("Let's go !");
-        
-        // Définit l'action du bouton pour commencer la distribution des cartes lorsque cliqué
-        startGame.setOnAction(e -> distribuerCarte());
+        distribuerLesCartesAuxJoueurs();
         
         // Met la HBox de score au premier plan
         scoreHBox.toFront();
-    }
-    
-    /**
-     * Distribue les cartes aux joueurs. Les cartes sont retirées du paquet de cartes, puis une animation de
-     * distribution de cartes est effectuée. L'ordre de distribution par qui commencer à distribuer est déterminé de
-     * manière aléatoire. Les barres de progression sont mises à jour pour refléter la progression de la distribution,
-     * la barre de progression rempli à moitié correspond au nombre de carte total divisé par 2.
-     * <p>
-     * Attention, il faut corriger le fait que les cartes sont distribuées par le bas pour les joueurs...
-     */
-    public void distribuerCarte() {
-        System.out.println("Maitre du jeu : Je distribue les cartes...");
-        // Cache le bouton "startGame"
-        startGame.setVisible(false);
-        
-        // Inverse la direction de la barre de progression de l'IA
-        progressBarIa.setRotate(180);
-        
-        // Mélange l'ordre des joueurs pour déterminer l'ordre de distribution
-        Joueur ia = maitre.getJoueurs().get(0);
-        Joueur nonIa = maitre.getJoueurs().get(1);
-        Collections.shuffle(maitre.getJoueurs());
-        
-        // Obtient la liste des cartes à distribuer
-        ArrayList<Carte> cartesADistribuer = maitre.getPaquet().getCartes();
-        
-        // Crée une nouvelle transition séquentielle pour l'animation de distribution
-        SequentialTransition st = new SequentialTransition();
-        double offsetYForPerseptive = 0;
-        
-        // Calcule le pas de progression pour chaque carte distribuée
-        double stepProgress = 1.0 / cartesADistribuer.size();
-        double progress = stepProgress;
-        
-        // Continue à distribuer les cartes jusqu'à ce qu'il n'y en ait plus
-        while (!cartesADistribuer.isEmpty()) {
-            for (Joueur joueur : maitre.getJoueurs()) {
-                // Retire la première carte de la liste
-                Carte carteADistribuer = cartesADistribuer.remove(0);
-                
-                // Crée une nouvelle transition de translation pour l'animation de distribution de la carte
-                TranslateTransition tt = new TranslateTransition(Duration.millis(100), carteADistribuer);
-                
-                // Configure l'animation et la barre de progression en fonction du joueur
-                if (joueur.getPseudo().equals("Brutuse")) {
-                    tt.setByY(-315 + offsetYForPerseptive);
-                    double newProgress = progress;
-                    tt.setOnFinished(e -> progressBarNonIa.setProgress(newProgress));
-                } else {
-                    tt.setByY(350 - offsetYForPerseptive);
-                    double newProgress = progress;
-                    tt.setOnFinished(e -> progressBarIa.setProgress(newProgress));
-                }
-                
-                offsetYForPerseptive += 0.25;
-                
-                // Ajoute la transition de translation à la transition séquentielle
-                st.getChildren().add(tt);
-            }
-            progress += stepProgress;
-        }
-        
-        // Joue l'animation globale séquentielle de distribution des cartes
-        st.play();
-        st.setOnFinished(e -> {
-            System.out.println("Maitre du jeu : Distribution des cartes terminées, bonne chance !");
-        });
-        
-        // Cache le bouton "Start Game"
-        startGame.setVisible(false);
     }
     
     /**
@@ -184,4 +150,9 @@ public class FenetrePrincipaleController implements Initializable {
         return cartesReversed;
     }
     
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        fenetrePrincipale.setPrefHeight(height);
+        fenetrePrincipale.setPrefWidth(width);
+    }
 }

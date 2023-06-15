@@ -1,7 +1,6 @@
 package fatih.bozlak.modele;
 
 import java.util.ArrayList;
-import java.util.Scanner;
 
 /**
  * Classe représentant un joueur dans un jeu de cartes. Chaque joueur a un pseudo, un identifiant unique et un ensemble
@@ -51,7 +50,7 @@ public class Joueur {
         
         if (cartes.isEmpty()) throw new ErreurJoueur(this.getPseudo() + " : Je n'ai plus de carte.");
         
-        if (!getPseudo().equals("SUPER_IA")) {
+       /* if (!getPseudo().equals(MaitreDuJeu.nomIa)) {
             boolean aJouee = false;
             Scanner scanner = new Scanner(System.in);
             while (!aJouee) {
@@ -64,7 +63,7 @@ public class Joueur {
                     
                 }
             }
-        }
+        }*/
         
         return cartes.remove(0);
     }
@@ -112,17 +111,3 @@ public class Joueur {
     }
 }
 
-/**
- * Exception lancée lorsqu'une opération invalide est effectuée sur un joueur. Par exemple, essayer de jouer une carte
- * alors qu'il n'en a pas, ou essayer de recevoir une carte qu'il possède déjà.
- */
-class ErreurJoueur extends Exception {
-    /**
-     * Construit une nouvelle ErreurJoueur avec le message d'erreur spécifié.
-     *
-     * @param msg le message d'erreur
-     */
-    public ErreurJoueur(String msg) {
-        super(msg);
-    }
-}

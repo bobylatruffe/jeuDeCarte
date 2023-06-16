@@ -8,6 +8,19 @@ import javafx.scene.image.ImageView;
  */
 public class Carte extends ImageView {
     
+    public static double carteWidth = 160;
+    public static double carteHeight = 270;
+    
+    private boolean isForIa = false;
+    
+    public boolean isForIa() {
+        return isForIa;
+    }
+    
+    public void setForIa(boolean forIa) {
+        isForIa = forIa;
+    }
+    
     /**
      * La valeur de la carte. Dans la plupart des jeux de cartes, la valeur peut varier de 1 (as) à 13 (roi).
      */
@@ -48,8 +61,8 @@ public class Carte extends ImageView {
         imgFaceDecouverte = new Image(getClass().getResource("/resources/images/cartes/" + valeur + " " + couleur + ".png").toExternalForm());
         
         this.setImage(imgFaceCachee);
-        this.setFitWidth(150);
-        this.setFitHeight(230);
+        this.setFitWidth(Carte.carteWidth);
+        this.setFitHeight(Carte.carteHeight);
 //        this.setPreserveRatio(true);
     }
     

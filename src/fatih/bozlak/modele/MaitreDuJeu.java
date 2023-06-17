@@ -223,4 +223,8 @@ public class MaitreDuJeu {
     public String toString() {
         return "MaitreDuJeu{" + "paquet=" + paquet + ", joueurs=" + joueurs + ", perdants=" + perdants + ", panier=" + panier + ", aComparer=" + Arrays.toString(aComparer) + '}';
     }
+    
+    public void log(String s) {
+        System.out.println("Maitre du jeu : " + s);
+    }
 }

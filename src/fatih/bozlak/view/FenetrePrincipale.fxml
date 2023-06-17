@@ -16,9 +16,6 @@
 
 <Pane fx:id="fenetrePrincipale" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" stylesheets="@../../../resources/css/App.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fatih.bozlak.controller.FenetrePrincipaleControlleur">
     <children>
-      <Group fx:id="cartesJoueurIa" layoutX="500.0" />
-      <Group fx:id="cartesPanier" layoutX="500.0" layoutY="400.0" />
-      <Group fx:id="cartesJoueurNonIa" layoutX="500.0" layoutY="800.0" />
         <HBox fx:id="scoreBar" alignment="CENTER" prefHeight="110.0" style="-fx-background-color: black; -fx-background-color: rgba(0, 0, 0, 0.75);">
             <children>
                 <VBox alignment="CENTER" prefHeight="90.0" prefWidth="450.0">

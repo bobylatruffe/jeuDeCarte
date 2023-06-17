@@ -92,14 +92,14 @@ public class MaitreDuJeu {
         } else {
             // Si aucun des joueurs n'a perdu, donc ont encore des cartes, nous comparons la valeur de la carte qu'ils ont jouer pour déterminer le gagnant
             switch (aComparer[0].compareTo(aComparer[1])) {
-                case 0: // Si la métrique est égale pour les deux joueurs, c'est qu'il faut une bataille
+                case 0: // Si la carte est égale pour les deux joueurs, c'est qu'il faut une bataille
                     gagnant = null;
                     System.out.println("Maitre du jeu : Pour vous départager, une bataille s'impose !");
                     break;
-                case 1: // Si la métrique du premier joueur est plus grande, le premier joueur est le gagnant
+                case 1: // Si la carte du premier joueur est plus grande, le premier joueur est le gagnant
                     gagnant = joueurs.get(0);
                     break;
-                case -1: // Si la métrique du second joueur est plus grande, le second joueur est le gagnant
+                case -1: // Si la carte du second joueur est plus grande, le second joueur est le gagnant
                     gagnant = joueurs.get(1);
                     break;
             }

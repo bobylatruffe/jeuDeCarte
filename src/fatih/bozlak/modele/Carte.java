@@ -7,6 +7,15 @@ import javafx.scene.image.ImageView;
  * Classe représentant une carte dans un jeu de cartes. Chaque carte a une valeur et une couleur.
  */
 public class Carte extends ImageView {
+    public boolean isForIa() {
+        return isForIa;
+    }
+    
+    public void setForIa(boolean forIa) {
+        isForIa = forIa;
+    }
+    
+    private boolean isForIa = false;
     
     /**
      * La valeur de la carte. Dans la plupart des jeux de cartes, la valeur peut varier de 1 (as) à 13 (roi).
@@ -48,8 +57,8 @@ public class Carte extends ImageView {
         imgFaceDecouverte = new Image(getClass().getResource("/resources/images/cartes/" + valeur + " " + couleur + ".png").toExternalForm());
         
         this.setImage(imgFaceCachee);
-        this.setFitWidth(150);
-        this.setFitHeight(230);
+        this.setFitWidth(190);
+        this.setFitHeight(290);
 //        this.setPreserveRatio(true);
     }
     

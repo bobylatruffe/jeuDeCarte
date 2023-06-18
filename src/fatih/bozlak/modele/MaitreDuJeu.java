@@ -2,6 +2,7 @@ package fatih.bozlak.modele;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 
 public class MaitreDuJeu {
     public static String nomIa = "Tribulus";
@@ -45,12 +46,15 @@ public class MaitreDuJeu {
      * @param joueur - le joueur à qui seront distribuées les cartes du panier
      */
     public void distribuerPanierAuGagnant(Joueur joueur) {
-//        Collections.shuffle(panier);
+        Collections.shuffle(panier);
+        
         // Tant que le panier contient des cartes
         while (!panier.isEmpty()) {
             try {
+                Carte carteADonner = panier.remove(0);
                 // Essayer d'attribuer la première carte du panier au joueur
-                joueur.recevoirUneCarte(panier.remove(0));
+                carteADonner.setForIa(joueur.getPseudo().equals(MaitreDuJeu.nomIa));
+                joueur.recevoirUneCarte(carteADonner);
             } catch (ErreurJoueur e) {
                 // Si une erreur se produit lors de l'attribution de la carte, afficher le message d'erreur
                 System.out.println(e.getMessage());
@@ -64,7 +68,7 @@ public class MaitreDuJeu {
      *
      * @return Joueur - le joueur gagnant s'il existe un gagnant, null s'il faut une bataille.
      *
-     * @throws ErreurMaitreDuJeu - Si aucun joueur n'a plus de carte pour jouer.
+     * @throws ErreurMaitreDuJeu - Si les deux joueurs n'ont plus de cartes.
      */
     public Joueur quiGagne() throws ErreurMaitreDuJeu {
         // Initialisation d'un joueur gagnant potentiel à null
@@ -127,7 +131,9 @@ public class MaitreDuJeu {
         try {
             // Le joueur joue une carte
             carteJouee = joueur.jouerUneCarte();
-            System.out.printf("Maitre du jeu : %s a jouée une carte.\n", joueur.getPseudo());
+            if (isFaceDecouverte)
+                System.out.printf("Maitre du jeu : %s a jouée la carte %s.\n", joueur.getPseudo(), carteJouee);
+            else System.out.printf("Maitre du jeu : %s a jouée une carte face cachée.\n", joueur.getPseudo());
             
             // La carte jouée est ajoutée au panier
             panier.add(carteJouee);

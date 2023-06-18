@@ -1,9 +1,6 @@
 package fatih.bozlak.controller;
 
-import fatih.bozlak.modele.Carte;
-import fatih.bozlak.modele.ErreurPaquetDeCarte;
-import fatih.bozlak.modele.Joueur;
-import fatih.bozlak.modele.MaitreDuJeu;
+import fatih.bozlak.modele.*;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -11,6 +8,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
+import javafx.stage.Stage;
 
 import java.net.URL;
 import java.util.ArrayList;
@@ -33,52 +31,116 @@ public class FenetrePrincipaleControlleur implements Initializable {
     private HBox scoreBar;
     
     // TODO: CREE UN COMPOSANT VIDE POUR RECEVOIR LES EVENEMTNS à la place de ça ...
-    
     @FXML
     public Label pseudoIa;
-    private final double width = 1000.0;
     
+    private final double width = 1000.0;
     private final double height = 800.0;
     
     private double stepProgressBar;
-    private MaitreDuJeu maitre;
     
+    private MaitreDuJeu maitre;
     private GestionnaireAnimation gestionnaireAnimation;
     
     private ArrayList<Joueur> joueurs;
+    
+    private Joueur lastGagant;
+    
+    private boolean isFaceDecouverte = true;
     
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         gestionnaireAnimation = new GestionnaireAnimation(this);
         
-        maitre = new MaitreDuJeu(13);
+        maitre = new MaitreDuJeu(3);
         maitre.addJoueur(new Joueur("BobyLatruffe"));
-
-//        maitre.getPaquet().melanger();
-//        maitre.log("Paquet de carte mélangé.");
+        
+        maitre.getPaquet().melanger();
+        maitre.log("Paquet de carte mélangé.");
         
         stepProgressBar = 1.0 / maitre.getPaquet().getCartes().size();
         
         placerLePaquetAuCentre();
         
+        // TODO à supprimer !
         progressBarNonIa.setOnMouseClicked(e -> {
             distribuerLesCartesAuxJoueurs();
         });
+        
+        pseudoIa.addEventHandler(gestionnaireAnimation.JOUEUR_A_JOUEE, new EventHandler<AnimationEvenement>() {
+            @Override
+            public void handle(AnimationEvenement animationEvenement) {
+                joueurJoueUneCarte(maitre.getJoueurs().get(0));
+            }
+        });
+        
+        pseudoIa.addEventHandler(gestionnaireAnimation.MANCHE_JOUEE, new EventHandler<AnimationEvenement>() {
+            @Override
+            public void handle(AnimationEvenement animationEvenement) {
+                if (isFaceDecouverte) {
+                    gestionnaireAnimation.showValueCards(maitre.getAComparer());
+                } else {
+                    isFaceDecouverte = true;
+                    gestionnaireAnimation.arrangerPanierPourBataille(maitre.getPanier());
+                }
+            }
+        });
+        
+        pseudoIa.addEventHandler(gestionnaireAnimation.VALEURS_AFFICHEES, new EventHandler<AnimationEvenement>() {
+            @Override
+            public void handle(AnimationEvenement animationEvenement) {
+                fight();
+            }
+        });
+        
+        pseudoIa.addEventHandler(gestionnaireAnimation.PANIER_DISTRIBUEE, new EventHandler<AnimationEvenement>() {
+            @Override
+            public void handle(AnimationEvenement animationEvenement) {
+                maitre.distribuerPanierAuGagnant(lastGagant);
+            }
+        });
+        
+        pseudoIa.addEventHandler(gestionnaireAnimation.BATAILLE, new EventHandler<AnimationEvenement>() {
+            @Override
+            public void handle(AnimationEvenement animationEvenement) {
+                isFaceDecouverte = false;
+            }
+        });
+        
+        progressBarIa.setOnMouseClicked(e -> {
+            joueurJoueUneCarte(maitre.getJoueurs().get(1));
+        });
     }
     
-    private void placerLePaquetAuCentre() {
-        for (Carte carte : maitre.getPaquet().getCartes()) {
-            fenetrePrincipale.getChildren().add(carte);
-            carte.setLayoutX(width / 2 - carte.getFitWidth() / 2);
-            carte.setLayoutY(height / 2 - carte.getFitHeight() / 2);
-            
-            carte.toBack();
+    public void fight() {
+        try {
+            lastGagant = maitre.quiGagne();
+            if (lastGagant != null) {
+                gestionnaireAnimation.retournerLesCartesFacesCacheeDuPanier(maitre.getPanier());
+                gestionnaireAnimation.donnerLesCartesDuPanierAuVainqeur(lastGagant, maitre.getPanier());
+            } else {
+                gestionnaireAnimation.arrangerPanierPourBataille(maitre.getPanier());
+                pseudoIa.fireEvent(new AnimationEvenement((gestionnaireAnimation.BATAILLE)));
+            }
+        } catch (ErreurMaitreDuJeu e) {
+            ((Stage) pseudoIa.getScene().getWindow()).close();
+        }
+    }
+    
+    private void joueurJoueUneCarte(Joueur joueurQuiJoue) {
+        Carte carteJouee = maitre.demanderAUnJoueurDeJouer(joueurQuiJoue, isFaceDecouverte);
+        
+        if (carteJouee != null) {
+            gestionnaireAnimation.joueurJoueUneCarte(carteJouee);
+        } else if (joueurQuiJoue.getPseudo().equals(MaitreDuJeu.nomIa)) {
+            pseudoIa.fireEvent(new AnimationEvenement(gestionnaireAnimation.VALEURS_AFFICHEES));
+        } else {
+            pseudoIa.fireEvent(new AnimationEvenement(gestionnaireAnimation.JOUEUR_A_JOUEE));
         }
     }
     
     /**
-     * Cette méthode est responsable de la distribution des cartes aux joueurs. Elle gère également deux événements
-     * :
+     * Cette méthode est responsable de la distribution des cartes aux joueurs. Elle gère également deux événements :
      * <p>
      * - 'CARTE_DISTRIBUEE' lorsqu'une carte est distribuée à un joueur.
      * <p>
@@ -145,6 +207,28 @@ public class FenetrePrincipaleControlleur implements Initializable {
         }
     }
     
+    /**
+     * Cette méthode est responsable de placer le paquet de cartes au centre de la fenêtre principale. Elle parcourt
+     * toutes les cartes du paquet et les ajoute à la fenêtre principale. Chaque carte est positionnée au centre de la
+     * fenêtre et envoyée à l'arrière des autres éléments.
+     */
+    private void placerLePaquetAuCentre() {
+        // Parcourir toutes les cartes du paquet.
+        for (Carte carte : maitre.getPaquet().getCartes()) {
+            // Ajouter la carte à la fenêtre principale.
+            fenetrePrincipale.getChildren().add(carte);
+            
+            // Calculer la position X de la carte de manière à la centrer horizontalement.
+            carte.setLayoutX(width / 2 - carte.getFitWidth() / 2);
+            
+            // Calculer la position Y de la carte de manière à la centrer verticalement.
+            carte.setLayoutY(height / 2 - carte.getFitHeight() / 2);
+            
+            // Envoyer la carte à l'arrière de la fenêtre principale pour qu'elle n'obstrue pas les autres éléments.
+            carte.toBack();
+        }
+    }
+    
     public double getWidth() {
         return width;
     }
@@ -159,5 +243,13 @@ public class FenetrePrincipaleControlleur implements Initializable {
     
     public HBox getScoreBar() {
         return scoreBar;
+    }
+    
+    public ProgressBar getProgressBarIa() {
+        return progressBarIa;
+    }
+    
+    public ProgressBar getProgressBarNonIa() {
+        return progressBarNonIa;
     }
 }

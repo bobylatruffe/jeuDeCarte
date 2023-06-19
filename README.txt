@@ -1,7 +1,7 @@
-Pour exécuter le jeu, il faut avoir une version de JRE >= 17.
-Normalement JavaFX est encapsulé dans le .jar
+Pour lancer le jeu, assure-toi d'avoir installé une version du Java Runtime Environment (JRE) égale ou supérieure à 17. Normalement, JavaFX est inclus dans le fichier .jar
 
-Après avoir choisi ton pseudo et le nombre de cartes, et après la distribution des cartes,
-il suffit d'appuyer sur espace pour jouer une carte.
+Si tu souhaites compiler le code toi-même, n'oublie pas de télécharger le SDK de JavaFX et de le configurer dans ton environnement de développement intégré (IDE). Cet environnement doit être correctement configuré pour inclure les bibliothèques du SDK de JavaFX.
 
-BUG : attention à attendre la fin d'une animation pour jouer à nouveau une carte !
+Une fois que tu as sélectionné ton pseudo et défini le nombre de cartes à distribuer, le jeu commence après la distribution des cartes. Pour jouer une carte, il te suffit d'appuyer sur la touche "espace" de ton clavier.
+
+Cependant, fais attention à un bogue connu : assure-toi d'attendre la fin de l'animation en cours avant de jouer une nouvelle carte. Cette précaution est nécessaire pour éviter tout dysfonctionnement du jeu.

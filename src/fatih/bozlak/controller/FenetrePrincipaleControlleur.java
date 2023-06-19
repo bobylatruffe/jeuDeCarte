@@ -24,6 +24,10 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 
+/**
+ * Cette classe permet de gérer tous ce qui se passe dans l'interface graphique en utilisant le maitre du jeu pour
+ * contrôler le jeu de bataille.
+ */
 public class FenetrePrincipaleControlleur implements Initializable {
     @FXML
     private ProgressBar progressBarIa;
@@ -61,31 +65,54 @@ public class FenetrePrincipaleControlleur implements Initializable {
     
     private final int nbDeCartesParCouleur;
     
+    /**
+     * Constructeur de la classe FenetrePrincipaleControlleur.
+     *
+     * @param pseudo               Le pseudo du joueur.
+     * @param nbDeCartesParCouleur Le nombre de cartes par couleur dans le jeu.
+     */
     public FenetrePrincipaleControlleur(String pseudo, int nbDeCartesParCouleur) {
+        // Mémoriser le nombre de cartes par couleur
         this.nbDeCartesParCouleur = nbDeCartesParCouleur;
         
+        // Créer une nouvelle instance du Maître du Jeu avec le nombre de cartes par couleur spécifié
         maitre = new MaitreDuJeu(nbDeCartesParCouleur);
         
+        // Ajouter un nouveau joueur au Maître du Jeu avec le pseudo spécifié
         maitre.addJoueur(new Joueur(pseudo));
         pseudoNonIaNoFxml = pseudo;
         
+        // Mélanger le paquet de cartes du Maître du Jeu
         maitre.getPaquet().melanger();
         maitre.log("Paquet de carte mélangé.");
     }
     
+    /**
+     * Cette méthode est automatiquement appelée après que les éléments FXML ont été chargés. Elle est utilisée pour
+     * initialiser la logique du contrôleur.
+     *
+     * @param url            l'emplacement utilisé pour résoudre les chemins relatifs pour l'objet root.
+     * @param resourceBundle les ressources utilisées pour localiser l'objet root.
+     */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        // Initialiser le texte du pseudo
         pseudoNonIa.setText(pseudoNonIaNoFxml);
         
+        // Initialiser le gestionnaire d'animation
         gestionnaireAnimation = new GestionnaireAnimation(this);
         
+        // Initialiser la barre de progression
         stepProgressBar = 1.0 / maitre.getPaquet().getCartes().size();
         
+        // Placer le paquet de cartes au centre de la scène
         placerLePaquetAuCentre();
         
+        // Distribuer les cartes aux joueurs
         distribuerLesCartesAuxJoueurs();
         
-        // pour ça c'est ChatGPT qui m'a aider !
+        // Ajouter un écouteur à la propriété scene de la fenêtre principale pour détecter les appuis sur la touche espace.
+        // Pour ça c'est ChatGPT qui m'a aider !
         fenetrePrincipale.sceneProperty().addListener(new ChangeListener<Scene>() {
             @Override
             public void changed(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
@@ -95,6 +122,15 @@ public class FenetrePrincipaleControlleur implements Initializable {
             }
         });
         
+        // Ajouter plusieurs gestionnaires d'événements pour gérer les différentes actions du jeu
+        // Ces gestionnaires d'événements réagissent à des événements personnalisés définis dans le GestionnaireAnimation
+        // JOUEUR_A_JOUEE: quand un joueur a joué une carte
+        // MANCHE_JOUEE: quand une manche a été jouée
+        // VALEURS_AFFICHEES: quand les valeurs des cartes sont affichées
+        // PANIER_DISTRIBUEE: quand le panier de cartes a été distribué
+        // BATAILLE: quand il y a une bataille
+        // END_GAME: quand le jeu se termine
+        // Chaque gestionnaire d'événements a une méthode handle() qui définit ce qui se passe lorsqu'un événement se produit.
         pseudoIa.addEventHandler(GestionnaireAnimation.JOUEUR_A_JOUEE, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
@@ -171,35 +207,55 @@ public class FenetrePrincipaleControlleur implements Initializable {
         });
     }
     
+    /**
+     * Cette méthode gère le déroulement d'une bataille dans le jeu. Elle détermine qui est le gagnant de la bataille et
+     * effectue les actions appropriées en conséquence.
+     */
     public void fight() {
         try {
+            // Détermine le gagnant de la bataille
             lastGagant = maitre.quiGagne();
+            
             if (lastGagant != null) {
+                // S'il y a un gagnant, retourne les cartes faces cachées du panier
+                // et donne les cartes du panier au vainqueur
                 gestionnaireAnimation.retournerLesCartesFacesCacheeDuPanier(maitre.getPanier());
                 gestionnaireAnimation.donnerLesCartesDuPanierAuVainqeur(lastGagant, maitre.getPanier());
             } else {
+                // S'il n'y a pas de gagnant, arrange le panier pour une autre bataille
+                // et déclenche un événement BATAILLE
                 gestionnaireAnimation.arrangerPanierPourBataille(maitre.getPanier());
                 pseudoIa.fireEvent(new AnimationEvenement((GestionnaireAnimation.BATAILLE)));
             }
         } catch (ErreurMaitreDuJeu e) {
+            // Si une erreur se produit pendant la détermination du gagnant (qu'un des joueurs (ou les deux) n'a plus de carte donc), imprime le message d'erreur
             System.out.println(e.getMessage());
             
+            // Déclenche un événement END_GAME avec le message d'erreur comme titre de l'alerte
             Platform.runLater(new Runnable() {
                 @Override
                 public void run() {
                     pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.END_GAME, e.getMessage()));
                 }
             });
-            
         }
     }
     
+    /**
+     * Cette méthode permet à un joueur de jouer une carte.
+     *
+     * @param joueurQuiJoue Le joueur qui est actuellement en train de jouer.
+     */
     private void joueurJoueUneCarte(Joueur joueurQuiJoue) {
+        // Demande au joueur de jouer une carte. Le joueur peut soit jouer une carte face découverte,
+        // soit une carte face cachée, en fonction de la valeur de isFaceDecouverte.
         Carte carteJouee = maitre.demanderAUnJoueurDeJouer(joueurQuiJoue, isFaceDecouverte);
         
         if (carteJouee != null) {
+            // Si une carte a été jouée, lance une animation pour montrer que le joueur a joué une carte
             gestionnaireAnimation.joueurJoueUneCarte(carteJouee);
         } else if (joueurQuiJoue.getPseudo().equals(MaitreDuJeu.nomIa)) {
+            // Si le joueur est l'IA, lance un événement VALEURS_AFFICHEES pour afficher les valeurs des cartes jouées par les deux joueurs.
             pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.VALEURS_AFFICHEES));
         } else {
             pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.JOUEUR_A_JOUEE));

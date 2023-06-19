@@ -28,7 +28,7 @@ public class AccueilControlleur implements Initializable {
     @FXML
     private Label lblErreur;
     
-    private String pseudo;
+    private final String pseudo;
     private int nbDeCartes;
     
     public AccueilControlleur() {

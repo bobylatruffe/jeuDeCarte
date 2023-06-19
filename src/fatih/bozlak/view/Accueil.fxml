@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.*?>
+<?import javafx.scene.effect.ColorAdjust?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.text.*?>
+<Pane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="388.0"
+      prefWidth="400.0" style="-fx-background-color: black;" xmlns="http://javafx.com/javafx/8"
+      xmlns:fx="http://javafx.com/fxml/1">
+    <children>
+        <ImageView fitHeight="582.0" fitWidth="365.0" layoutX="36.0" layoutY="-65.0" pickOnBounds="true"
+                   preserveRatio="true">
+            <image>
+                <Image url="@../../../resources/images/backgroundGame3.jpg"/>
+            </image>
+            <effect>
+                <ColorAdjust brightness="-0.59" saturation="-0.86"/>
+            </effect>
+        </ImageView>
+        <Label layoutX="25.0" layoutY="7.0" prefHeight="53.0" prefWidth="350.0"
+               text="Ton pseudo" textFill="WHITE">
+            <font>
+                <Font name="System Bold" size="24.0"/>
+            </font>
+        </Label>
+        <TextField fx:id="tfPseudo" layoutX="25.0" layoutY="55.0" prefHeight="51.0" prefWidth="350.0"
+                   promptText="Ton pseudo...">
+            <font>
+                <Font size="24.0"/>
+            </font>
+        </TextField>
+        <Label layoutX="25.0" layoutY="127.0" prefHeight="53.0" prefWidth="350.0"
+               text="Nombre de cartes total" textFill="WHITE">
+            <font>
+                <Font name="System Bold" size="24.0"/>
+            </font>
+        </Label>
+        <TextField fx:id="tfNbCartes" layoutX="25.0" layoutY="174.0" prefHeight="51.0" prefWidth="350.0">
+            <font>
+                <Font size="24.0"/>
+            </font>
+        </TextField>
+        <Button fx:id="btnJouer" layoutX="25.0" layoutY="273.0" mnemonicParsing="false" onAction="#ActionJouer"
+                prefHeight="77.0" prefWidth="350.0" text="Jouer">
+            <font>
+                <Font name="System Bold" size="36.0"/>
+            </font>
+        </Button>
+        <Label fx:id="lblErreur" alignment="CENTER" contentDisplay="CENTER" focusTraversable="false" layoutX="25.0"
+               layoutY="357.0" prefHeight="27.0" prefWidth="350.0" textFill="RED">
+            <font>
+                <Font name="System Bold" size="12.0"/>
+            </font>
+        </Label>
+    </children>
+</Pane>

@@ -68,7 +68,7 @@ public class MaitreDuJeu {
      *
      * @return Joueur - le joueur gagnant s'il existe un gagnant, null s'il faut une bataille.
      *
-     * @throws ErreurMaitreDuJeu - Si les deux joueurs n'ont plus de cartes.
+     * @throws ErreurMaitreDuJeu - Si un ou les deux joueurs n'ont plus de carte pour jouer.
      */
     public Joueur quiGagne() throws ErreurMaitreDuJeu {
         // Initialisation d'un joueur gagnant potentiel à null
@@ -77,7 +77,7 @@ public class MaitreDuJeu {
         // Si tous les joueurs sont perdants, c'est qu'ils n'ont plus de carte, donc il n'y a pas de gagnant
         if (perdants.size() == 2) {
             System.out.println("Maitre du jeu : Aucun joueur n'a gagné !");
-            throw new ErreurMaitreDuJeu("Aucun gagnant");
+            throw new ErreurMaitreDuJeu("Aucun gagnant", null);
         } else if (perdants.size() == 1) { // Si nous avons un seul perdant, l'autre joueur est le gagnant
             System.out.printf("Maitre du jeu : Le joueur %s n'a plus de carte, donc perdu pour lui:(\n", perdants.get(0).getPseudo());
             
@@ -92,6 +92,8 @@ public class MaitreDuJeu {
              joueursCopy.remove(perdants.get(0));
              gagnant = joueursCopy.remove(0);
             */
+            
+            throw new ErreurMaitreDuJeu("Maitre du jeu : Le joueur "  + gagnant.getPseudo() + " à gagné !", gagnant);
             
         } else {
             // Si aucun des joueurs n'a perdu, donc ont encore des cartes, nous comparons la valeur de la carte qu'ils ont jouer pour déterminer le gagnant

@@ -1,11 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import java.lang.*?>
-<?import javafx.geometry.*?>
-<?import javafx.scene.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
-<?import javafx.scene.text.*?>
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ProgressBar?>
@@ -13,46 +7,52 @@
 <?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.Font?>
-
-<Pane fx:id="fenetrePrincipale" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" stylesheets="@../../../resources/css/App.css" xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1" fx:controller="fatih.bozlak.controller.FenetrePrincipaleControlleur">
+<Pane fx:id="fenetrePrincipale" focusTraversable="true" maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity"
+      minWidth="-Infinity" prefHeight="800.0" prefWidth="1000.0" stylesheets="@../../../resources/css/App.css"
+      xmlns="http://javafx.com/javafx/8" xmlns:fx="http://javafx.com/fxml/1">
     <children>
-        <HBox fx:id="scoreBar" alignment="CENTER" prefHeight="110.0" style="-fx-background-color: black; -fx-background-color: rgba(0, 0, 0, 0.75);">
+        <HBox fx:id="scoreBar" alignment="CENTER" prefHeight="110.0"
+              style="-fx-background-color: black; -fx-background-color: rgba(0, 0, 0, 0.75);">
             <children>
                 <VBox alignment="CENTER" prefHeight="90.0" prefWidth="450.0">
                     <children>
-                        <ProgressBar fx:id="progressBarNonIa" prefHeight="40.0" prefWidth="420.0" progress="0.0">
+                        <ProgressBar fx:id="progressBarNonIa" focusTraversable="false" prefHeight="40.0"
+                                     prefWidth="420.0" progress="0.0">
                             <VBox.margin>
-                                <Insets bottom="5.0" top="20.0" />
+                                <Insets bottom="5.0" top="20.0"/>
                             </VBox.margin>
                         </ProgressBar>
-                        <Label fx:id="pseudoNonIa" alignment="CENTER_RIGHT" prefHeight="27.0" prefWidth="420.0" text="BobyLatruffe" textFill="WHITE">
+                        <Label fx:id="pseudoNonIa" alignment="CENTER_RIGHT" focusTraversable="false" prefHeight="27.0"
+                               prefWidth="420.0" text="BobyLatruffe" textFill="WHITE">
                             <font>
-                                <Font name="System Bold" size="18.0" />
+                                <Font name="System Bold" size="18.0"/>
                             </font>
                             <padding>
-                                <Insets right="0.0" />
+                                <Insets right="0.0"/>
                             </padding>
                         </Label>
                     </children>
                 </VBox>
                 <ImageView fitHeight="100.0" fitWidth="100.0" pickOnBounds="true" preserveRatio="true">
                     <image>
-                        <Image url="@../../../resources/images/vs.png" />
+                        <Image url="@../../../resources/images/vs.png"/>
                     </image>
                 </ImageView>
                 <VBox alignment="CENTER" prefHeight="90.0" prefWidth="450.0">
                     <children>
-                        <ProgressBar fx:id="progressBarIa" prefHeight="40.0" prefWidth="420.0" progress="0.0" style="-fx-scale-x: -1;">
+                        <ProgressBar fx:id="progressBarIa" focusTraversable="false" prefHeight="40.0" prefWidth="420.0"
+                                     progress="0.0" style="-fx-scale-x: -1;">
                             <VBox.margin>
-                                <Insets bottom="5.0" top="20.0" />
+                                <Insets bottom="5.0" top="20.0"/>
                             </VBox.margin>
                         </ProgressBar>
-                        <Label fx:id="pseudoIa" prefHeight="27.0" prefWidth="420.0" text="Tribulus" textFill="WHITE">
+                        <Label fx:id="pseudoIa" focusTraversable="false" prefHeight="27.0" prefWidth="420.0"
+                               text="Tribulus" textFill="WHITE">
                             <font>
-                                <Font name="System Bold" size="18.0" />
+                                <Font name="System Bold" size="18.0"/>
                             </font>
                             <padding>
-                                <Insets left="00.0" />
+                                <Insets left="00.0"/>
                             </padding>
                         </Label>
                     </children>

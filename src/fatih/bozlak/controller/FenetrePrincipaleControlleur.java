@@ -1,15 +1,25 @@
 package fatih.bozlak.controller;
 
 import fatih.bozlak.modele.*;
+import javafx.application.Platform;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
+import javafx.event.Event;
 import javafx.event.EventHandler;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
+import javafx.scene.control.Alert;
+import javafx.scene.control.ButtonType;
 import javafx.scene.control.Label;
 import javafx.scene.control.ProgressBar;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Pane;
 import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
@@ -30,16 +40,17 @@ public class FenetrePrincipaleControlleur implements Initializable {
     @FXML
     private HBox scoreBar;
     
-    // TODO: CREE UN COMPOSANT VIDE POUR RECEVOIR LES EVENEMTNS à la place de ça ...
     @FXML
     public Label pseudoIa;
+    
+    private final String pseudoNonIaNoFxml;
     
     private final double width = 1000.0;
     private final double height = 800.0;
     
     private double stepProgressBar;
     
-    private MaitreDuJeu maitre;
+    private final MaitreDuJeu maitre;
     private GestionnaireAnimation gestionnaireAnimation;
     
     private ArrayList<Joueur> joueurs;
@@ -48,33 +59,50 @@ public class FenetrePrincipaleControlleur implements Initializable {
     
     private boolean isFaceDecouverte = true;
     
-    @Override
-    public void initialize(URL url, ResourceBundle resourceBundle) {
-        gestionnaireAnimation = new GestionnaireAnimation(this);
+    private final int nbDeCartesParCouleur;
+    
+    public FenetrePrincipaleControlleur(String pseudo, int nbDeCartesParCouleur) {
+        this.nbDeCartesParCouleur = nbDeCartesParCouleur;
         
-        maitre = new MaitreDuJeu(3);
-        maitre.addJoueur(new Joueur("BobyLatruffe"));
+        maitre = new MaitreDuJeu(nbDeCartesParCouleur);
+        
+        maitre.addJoueur(new Joueur(pseudo));
+        pseudoNonIaNoFxml = pseudo;
         
         maitre.getPaquet().melanger();
         maitre.log("Paquet de carte mélangé.");
+    }
+    
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        pseudoNonIa.setText(pseudoNonIaNoFxml);
+        
+        gestionnaireAnimation = new GestionnaireAnimation(this);
         
         stepProgressBar = 1.0 / maitre.getPaquet().getCartes().size();
         
         placerLePaquetAuCentre();
         
-        // TODO à supprimer !
-        progressBarNonIa.setOnMouseClicked(e -> {
-            distribuerLesCartesAuxJoueurs();
+        distribuerLesCartesAuxJoueurs();
+        
+        // pour ça c'est ChatGPT qui m'a aider !
+        fenetrePrincipale.sceneProperty().addListener(new ChangeListener<Scene>() {
+            @Override
+            public void changed(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
+                newScene.setOnKeyPressed(keyEvent -> {
+                    joueurJoueUneCarte(maitre.getJoueurs().get(1));
+                });
+            }
         });
         
-        pseudoIa.addEventHandler(gestionnaireAnimation.JOUEUR_A_JOUEE, new EventHandler<AnimationEvenement>() {
+        pseudoIa.addEventHandler(GestionnaireAnimation.JOUEUR_A_JOUEE, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
                 joueurJoueUneCarte(maitre.getJoueurs().get(0));
             }
         });
         
-        pseudoIa.addEventHandler(gestionnaireAnimation.MANCHE_JOUEE, new EventHandler<AnimationEvenement>() {
+        pseudoIa.addEventHandler(GestionnaireAnimation.MANCHE_JOUEE, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
                 if (isFaceDecouverte) {
@@ -86,29 +114,60 @@ public class FenetrePrincipaleControlleur implements Initializable {
             }
         });
         
-        pseudoIa.addEventHandler(gestionnaireAnimation.VALEURS_AFFICHEES, new EventHandler<AnimationEvenement>() {
+        pseudoIa.addEventHandler(GestionnaireAnimation.VALEURS_AFFICHEES, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
                 fight();
             }
         });
         
-        pseudoIa.addEventHandler(gestionnaireAnimation.PANIER_DISTRIBUEE, new EventHandler<AnimationEvenement>() {
+        pseudoIa.addEventHandler(GestionnaireAnimation.PANIER_DISTRIBUEE, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
                 maitre.distribuerPanierAuGagnant(lastGagant);
             }
         });
         
-        pseudoIa.addEventHandler(gestionnaireAnimation.BATAILLE, new EventHandler<AnimationEvenement>() {
+        pseudoIa.addEventHandler(GestionnaireAnimation.BATAILLE, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
                 isFaceDecouverte = false;
             }
         });
         
-        progressBarIa.setOnMouseClicked(e -> {
-            joueurJoueUneCarte(maitre.getJoueurs().get(1));
+        pseudoIa.addEventHandler(GestionnaireAnimation.END_GAME, new EventHandler<Event>() {
+            @Override
+            public void handle(Event event) {
+                Alert alert = new Alert(Alert.AlertType.CONFIRMATION, "Une autre partie ?", ButtonType.YES, ButtonType.NO);
+                alert.setHeaderText(null);
+                alert.setGraphic(null);
+                alert.setTitle(((AnimationEvenement) event).getMsg());
+                alert.showAndWait();
+                
+                if (alert.getResult() == ButtonType.YES) {
+                    FXMLLoader loader = new FXMLLoader(getClass().getResource("/fatih/bozlak/view/Accueil.fxml"));
+                    loader.setController(new AccueilControlleur(pseudoNonIaNoFxml, nbDeCartesParCouleur));
+                    
+                    try {
+                        Parent root = loader.load();
+                        
+                        Stage stage = new Stage();
+                        stage.setScene(new Scene(root));
+                        stage.setResizable(false);
+                        stage.show();
+                        
+                        // C'est une astuce connu de JavaFX pour récupérer la fenêtre courante
+                        ((Stage) pseudoIa.getScene().getWindow()).close();
+                        
+                    } catch (IOException err) {
+                        System.out.println("Impossible de charger le fichier FXML!");
+                    }
+                    
+                } else {
+                    // C'est une astuce connu de JavaFX pour récupérer la fenêtre courante
+                    ((Stage) pseudoIa.getScene().getWindow()).close();
+                }
+            }
         });
     }
     
@@ -120,10 +179,18 @@ public class FenetrePrincipaleControlleur implements Initializable {
                 gestionnaireAnimation.donnerLesCartesDuPanierAuVainqeur(lastGagant, maitre.getPanier());
             } else {
                 gestionnaireAnimation.arrangerPanierPourBataille(maitre.getPanier());
-                pseudoIa.fireEvent(new AnimationEvenement((gestionnaireAnimation.BATAILLE)));
+                pseudoIa.fireEvent(new AnimationEvenement((GestionnaireAnimation.BATAILLE)));
             }
         } catch (ErreurMaitreDuJeu e) {
-            ((Stage) pseudoIa.getScene().getWindow()).close();
+            System.out.println(e.getMessage());
+            
+            Platform.runLater(new Runnable() {
+                @Override
+                public void run() {
+                    pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.END_GAME, e.getMessage()));
+                }
+            });
+            
         }
     }
     
@@ -133,9 +200,9 @@ public class FenetrePrincipaleControlleur implements Initializable {
         if (carteJouee != null) {
             gestionnaireAnimation.joueurJoueUneCarte(carteJouee);
         } else if (joueurQuiJoue.getPseudo().equals(MaitreDuJeu.nomIa)) {
-            pseudoIa.fireEvent(new AnimationEvenement(gestionnaireAnimation.VALEURS_AFFICHEES));
+            pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.VALEURS_AFFICHEES));
         } else {
-            pseudoIa.fireEvent(new AnimationEvenement(gestionnaireAnimation.JOUEUR_A_JOUEE));
+            pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.JOUEUR_A_JOUEE));
         }
     }
     
@@ -153,7 +220,7 @@ public class FenetrePrincipaleControlleur implements Initializable {
         distribuerUneCarteAUnJoueur();
         
         // Événement déclenché chaque fois qu'une carte est distribuée.
-        pseudoIa.addEventHandler(gestionnaireAnimation.CARTE_DISTRIBUEE, new EventHandler<AnimationEvenement>() {
+        pseudoIa.addEventHandler(GestionnaireAnimation.CARTE_DISTRIBUEE, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
                 distribuerUneCarteAUnJoueur();
@@ -161,7 +228,7 @@ public class FenetrePrincipaleControlleur implements Initializable {
         });
         
         // Événement déclenché lorsque toutes les cartes ont été distribuées.
-        pseudoIa.addEventHandler(gestionnaireAnimation.CARTE_DISTRIBUEES, new EventHandler<AnimationEvenement>() {
+        pseudoIa.addEventHandler(GestionnaireAnimation.CARTE_DISTRIBUEES, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
                 maitre.log("Distribution des cartes terminées.");
@@ -183,7 +250,7 @@ public class FenetrePrincipaleControlleur implements Initializable {
         
         // Si le paquet de cartes est vide, déclencher l'événement 'CARTE_DISTRIBUEES'.
         if (maitre.getPaquet().getCartes().isEmpty()) {
-            pseudoIa.fireEvent(new AnimationEvenement(gestionnaireAnimation.CARTE_DISTRIBUEES));
+            pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.CARTE_DISTRIBUEES));
         }
         
         try {

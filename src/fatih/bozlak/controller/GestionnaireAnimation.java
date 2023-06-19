@@ -14,14 +14,14 @@ import javafx.util.Duration;
 import java.util.ArrayList;
 
 public class GestionnaireAnimation {
-    public final EventType<AnimationEvenement> BATAILLE = new EventType<AnimationEvenement>(Event.ANY, "BATAILLE");
-    public final EventType<AnimationEvenement> PANIER_DISTRIBUEE = new EventType<AnimationEvenement>(Event.ANY, "PANIER_DISTRIBUEE");
-    public final EventType<AnimationEvenement> VALEURS_AFFICHEES = new EventType<AnimationEvenement>(Event.ANY, "VALEURS_AFFICHEES");
-    public final EventType<AnimationEvenement> MANCHE_JOUEE = new EventType<AnimationEvenement>(Event.ANY, "MANCHE_JOUEE");
-    public final EventType<AnimationEvenement> CARTE_DISTRIBUEE = new EventType<AnimationEvenement>(Event.ANY, "CARTE_DISTRIBUEE");
-    public final EventType<AnimationEvenement> CARTE_DISTRIBUEES = new EventType<AnimationEvenement>(Event.ANY, "CARTE_DISTRIBUEES");
-    public final EventType<AnimationEvenement> JOUEUR_A_JOUEE = new EventType<AnimationEvenement>(Event.ANY, "JOUEUR_A_JOUEE");
-    public final EventType<AnimationEvenement> PANIER_ARRANGEE_TERMINEE = new EventType<AnimationEvenement>(Event.ANY, "PANIER_ARRANGER_TERMINEE");
+    public static final EventType<AnimationEvenement> END_GAME = new EventType<AnimationEvenement>(Event.ANY, "END_GAME");
+    public static final EventType<AnimationEvenement> BATAILLE = new EventType<AnimationEvenement>(Event.ANY, "BATAILLE");
+    public static final EventType<AnimationEvenement> PANIER_DISTRIBUEE = new EventType<AnimationEvenement>(Event.ANY, "PANIER_DISTRIBUEE");
+    public static final EventType<AnimationEvenement> VALEURS_AFFICHEES = new EventType<AnimationEvenement>(Event.ANY, "VALEURS_AFFICHEES");
+    public static final EventType<AnimationEvenement> MANCHE_JOUEE = new EventType<AnimationEvenement>(Event.ANY, "MANCHE_JOUEE");
+    public static final EventType<AnimationEvenement> CARTE_DISTRIBUEE = new EventType<AnimationEvenement>(Event.ANY, "CARTE_DISTRIBUEE");
+    public static final EventType<AnimationEvenement> CARTE_DISTRIBUEES = new EventType<AnimationEvenement>(Event.ANY, "CARTE_DISTRIBUEES");
+    public static final EventType<AnimationEvenement> JOUEUR_A_JOUEE = new EventType<AnimationEvenement>(Event.ANY, "JOUEUR_A_JOUEE");
     
     private final double dureeAnimation = 100;
     private final double distanceDuPanierAuxJoueurs;
@@ -33,9 +33,6 @@ public class GestionnaireAnimation {
         this.mainWindow = fenetrePrincipaleControlleur;
         distanceDuPanierAuxJoueurs = this.mainWindow.getHeight() / 2;
     }
-    
-    private double lastOffsetForPerpectiveForIa = 0.0;
-    private double lastOffsetForPerpectiveForNonIa = 0.0;
     
     private void incPrograssbarNonIa() {
         mainWindow.getProgressBarNonIa().setProgress(mainWindow.getProgressBarNonIa().getProgress() + mainWindow.getStepProgressBar());
@@ -159,7 +156,7 @@ public class GestionnaireAnimation {
             
             st.getChildren().add(tt);
         }
-        st.setDelay(Duration.millis(2000));
+        st.setDelay(Duration.millis(dureeAnimation));
         st.play();
         st.setOnFinished(e -> {
             panier.forEach(carte -> {

@@ -119,6 +119,7 @@ public class FenetrePrincipaleControlleur implements Initializable {
             public void changed(ObservableValue<? extends Scene> observableValue, Scene oldScene, Scene newScene) {
                 newScene.setOnKeyPressed(keyEvent -> {
                     if (keyEvent.getCode() == KeyCode.SPACE)
+                        // Le joueur humain est à l'indice 1
                         joueurJoueUneCarte(maitre.getJoueurs().get(1));
                 });
             }
@@ -143,7 +144,10 @@ public class FenetrePrincipaleControlleur implements Initializable {
         pseudoIa.addEventHandler(GestionnaireAnimation.MANCHE_JOUEE, new EventHandler<AnimationEvenement>() {
             @Override
             public void handle(AnimationEvenement animationEvenement) {
-                if (isFaceDecouverte) {
+                if(maitre.getPerdants().size() > 0) {
+                    fight();
+                }
+                else if (isFaceDecouverte) {
                     gestionnaireAnimation.showValueCards(maitre.getAComparer());
                 } else {
                     isFaceDecouverte = true;
@@ -256,11 +260,12 @@ public class FenetrePrincipaleControlleur implements Initializable {
         if (carteJouee != null) {
             // Si une carte a été jouée, lance une animation pour montrer que le joueur a joué une carte
             gestionnaireAnimation.joueurJoueUneCarte(carteJouee);
-        } else if (joueurQuiJoue.getPseudo().equals(MaitreDuJeu.nomIa)) {
-            // Si le joueur est l'IA, lance un événement VALEURS_AFFICHEES pour afficher les valeurs des cartes jouées par les deux joueurs.
-            pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.VALEURS_AFFICHEES));
         } else {
-            pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.JOUEUR_A_JOUEE));
+            if (joueurQuiJoue.getPseudo().equals(MaitreDuJeu.nomIa)) {
+                pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.MANCHE_JOUEE));
+            } else {
+                pseudoIa.fireEvent(new AnimationEvenement(GestionnaireAnimation.JOUEUR_A_JOUEE));
+            }
         }
     }
 

@@ -40,6 +40,10 @@ public class MaitreDuJeu {
         return aComparer;
     }
     
+    public ArrayList<Joueur> getPerdants() {
+        return perdants;
+    }
+    
     /**
      * Cette méthode distribue toutes les cartes du panier au joueur spécifié.
      *
